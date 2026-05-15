@@ -1,11 +1,11 @@
-# pm — knowledge graph CLI
+# alex — knowledge graph CLI
 
 A personal knowledge graph backed by Datahike. Models everything as
 entities and claims (subject-predicate-object triples). Task management
 is sugar on top of the graph.
 
-Authored in [beagle](https://github.com/tompassarelli/beagle) (`pm.rkt`),
-compiled to Clojure (`pm.clj`), runs on [babashka](https://babashka.org/).
+Authored in [beagle](https://github.com/tompassarelli/beagle) (`alex.rkt`),
+compiled to Clojure (`alex.clj`), runs on [babashka](https://babashka.org/).
 
 ## The ontological model
 
@@ -101,11 +101,11 @@ theme, task, title, status, description.
 ### Graph commands
 
 ```
-pm mint <name> [kind]           create entity (optionally classify it)
-pm attr <entity> <kind> <value> attach a descriptor
-pm claim <s> <p> <o> [layer]   create a relationship claim
-pm about <entity>               show entity: classifications, descriptors, relations
-pm entities                     list all entities
+alex mint <name> [kind]           create entity (optionally classify it)
+alex attr <entity> <kind> <value> attach a descriptor
+alex claim <s> <p> <o> [layer]   create a relationship claim
+alex about <entity>               show entity: classifications, descriptors, relations
+alex entities                     list all entities
 ```
 
 ### Task sugar
@@ -113,24 +113,24 @@ pm entities                     list all entities
 Tasks are entities classified as "task" with title and status descriptors.
 
 ```
-pm add <title>                  create task (auto-numbered t1, t2, ...)
-pm list                         list tasks with checkboxes
-pm done <id>                    mark task done
-pm rm <id>                      remove task and its descriptors
+alex add <title>                  create task (auto-numbered t1, t2, ...)
+alex list                         list tasks with checkboxes
+alex done <id>                    mark task done
+alex rm <id>                      remove task and its descriptors
 ```
 
 ### Source ingestion
 
 ```
-echo "some text" | pm ingest    store raw text as a source entity
-pm sources                      list ingested sources
-pm source <name>                show source text
+echo "some text" | alex ingest    store raw text as a source entity
+alex sources                      list ingested sources
+alex source <name>                show source text
 ```
 
 ### Admin
 
 ```
-pm nuke                         wipe the database
+alex nuke                         wipe the database
 ```
 
 ## Dependencies
@@ -138,15 +138,15 @@ pm nuke                         wipe the database
 - **Runtime:** [babashka](https://babashka.org/) (`bb`) with the
   `replikativ/datahike` pod (auto-fetched on first run)
 - **Build-time:** [beagle](https://github.com/tompassarelli/beagle)
-  (`bin/beagle-build pm.rkt pm.clj`) — only needed to recompile from source
+  (`bin/beagle-build alex.rkt alex.clj`) — only needed to recompile from source
 
-Data lives at `~/.pm/datahike/`.
+Data lives at `~/.alexander/datahike/`.
 
 ## Building
 
 ```
-bin/beagle-build pm.rkt pm.clj
+bin/beagle-build alex.rkt alex.clj
 ```
 
-Requires beagle installed as a Racket package. The compiled `pm.clj` is
+Requires beagle installed as a Racket package. The compiled `alex.clj` is
 checked in so you can run without beagle installed.

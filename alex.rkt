@@ -1,6 +1,6 @@
 #lang beagle
 
-(ns pm.cli)
+(ns alexander.cli)
 
 (require clojure.string :as str)
 
@@ -23,7 +23,7 @@
 ;; -- config --
 (defn db-cfg []
   (hash-map :store (hash-map :backend :file
-                              :path (str (System/getProperty "user.home") "/.pm/datahike"))))
+                              :path (str (System/getProperty "user.home") "/.alexander/datahike"))))
 
 ;; -- schema (flat — everything is an entity) --
 (def schema
@@ -66,6 +66,7 @@
    (hash-map :name "description")])
 
 (defn ensure-db []
+  (unsafe "(.mkdirs (java.io.File. (str (System/getProperty \"user.home\") \"/.alexander\")))")
   (when (not (d/database-exists? (db-cfg)))
     (d/create-database (db-cfg)))
   (let [conn (d/connect (db-cfg))]
@@ -377,28 +378,28 @@
   (println "database cleared."))
 
 (defn cmd-help []
-  (println "pm — knowledge graph (datahike)")
+  (println "alexander — knowledge graph (datahike)")
   (println "")
   (println "  graph:")
-  (println "    pm mint <name> [kind]           create entity")
-  (println "    pm attr <e> <kind> <value>      attach descriptor")
-  (println "    pm claim <s> <p> <o> [layer]    relate entities")
-  (println "    pm about <entity>               show entity")
-  (println "    pm entities                     list all")
+  (println "    alex mint <name> [kind]           create entity")
+  (println "    alex attr <e> <kind> <value>      attach descriptor")
+  (println "    alex claim <s> <p> <o> [layer]    relate entities")
+  (println "    alex about <entity>               show entity")
+  (println "    alex entities                     list all")
   (println "")
   (println "  tasks:")
-  (println "    pm add <title>                  add task")
-  (println "    pm list                         list tasks")
-  (println "    pm done <id>                    mark done")
-  (println "    pm rm <id>                      remove task")
+  (println "    alex add <title>                  add task")
+  (println "    alex list                         list tasks")
+  (println "    alex done <id>                    mark done")
+  (println "    alex rm <id>                      remove task")
   (println "")
   (println "  sources:")
-  (println "    pm ingest                       read stdin")
-  (println "    pm sources                      list sources")
-  (println "    pm source <name>                show source")
+  (println "    alex ingest                       read stdin")
+  (println "    alex sources                      list sources")
+  (println "    alex source <name>                show source")
   (println "")
   (println "  admin:")
-  (println "    pm nuke                         wipe database"))
+  (println "    alex nuke                         wipe database"))
 
 ;; -- dispatch --
 (defn main []
@@ -406,33 +407,33 @@
         cmd (first args)]
     (cond
       (= cmd "mint") (if (nil? (get args 1))
-                       (println "usage: pm mint <name> [kind]")
+                       (println "usage: alexmint <name> [kind]")
                        (cmd-mint (get args 1) (get args 2)))
       (= cmd "attr") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3)))
-                       (println "usage: pm attr <entity> <kind> <value>")
+                       (println "usage: alexattr <entity> <kind> <value>")
                        (cmd-attr (get args 1) (get args 2) (get args 3)))
       (= cmd "claim") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3)))
-                         (println "usage: pm claim <subject> <predicate> <object> [layer]")
+                         (println "usage: alexclaim <subject> <predicate> <object> [layer]")
                          (cmd-claim-rel (get args 1) (get args 2) (get args 3)
                                         (if (nil? (get args 4)) "observation" (get args 4))))
       (= cmd "about") (if (nil? (get args 1))
-                         (println "usage: pm about <entity>")
+                         (println "usage: alexabout <entity>")
                          (cmd-about (get args 1)))
       (= cmd "entities") (cmd-entities)
       (= cmd "add") (if (empty? (rest args))
-                      (println "usage: pm add <title>")
+                      (println "usage: alexadd <title>")
                       (cmd-add (str/join " " (rest args))))
       (= cmd "list") (cmd-list)
       (= cmd "done") (if (nil? (get args 1))
-                       (println "usage: pm done <id>")
+                       (println "usage: alexdone <id>")
                        (cmd-done (get args 1)))
       (= cmd "rm") (if (nil? (get args 1))
-                     (println "usage: pm rm <id>")
+                     (println "usage: alexrm <id>")
                      (cmd-rm (get args 1)))
       (= cmd "ingest") (cmd-ingest)
       (= cmd "sources") (cmd-sources)
       (= cmd "source") (if (nil? (get args 1))
-                          (println "usage: pm source <name>")
+                          (println "usage: alexsource <name>")
                           (cmd-source (get args 1)))
       (= cmd "nuke") (cmd-nuke)
       :else (cmd-help))))

@@ -1,4 +1,4 @@
-(ns pm.cli
+(ns alexander.cli
   (:require [clojure.string :as str]))
 
 (require '[babashka.pods :as pods])
@@ -8,13 +8,14 @@
 (require '[datahike.pod :as d])
 
 (defn db-cfg []
-  (hash-map :store (hash-map :backend :file :path (str (System/getProperty "user.home") "/.pm/datahike"))))
+  (hash-map :store (hash-map :backend :file :path (str (System/getProperty "user.home") "/.alexander/datahike"))))
 
 (def schema [(hash-map :db/ident :name :db/valueType :db.type/string :db/cardinality :db.cardinality/one :db/unique :db.unique/identity) (hash-map :db/ident :value :db/valueType :db.type/string :db/cardinality :db.cardinality/one) (hash-map :db/ident :text :db/valueType :db.type/string :db/cardinality :db.cardinality/one) (hash-map :db/ident :subject :db/valueType :db.type/ref :db/cardinality :db.cardinality/one) (hash-map :db/ident :predicate :db/valueType :db.type/keyword :db/cardinality :db.cardinality/one) (hash-map :db/ident :object :db/valueType :db.type/ref :db/cardinality :db.cardinality/one) (hash-map :db/ident :layer :db/valueType :db.type/keyword :db/cardinality :db.cardinality/one) (hash-map :db/ident :created-at :db/valueType :db.type/string :db/cardinality :db.cardinality/one)])
 
 (def concepts [(hash-map :name "name") (hash-map :name "person") (hash-map :name "place") (hash-map :name "project") (hash-map :name "theme") (hash-map :name "task") (hash-map :name "title") (hash-map :name "status") (hash-map :name "description")])
 
 (defn ensure-db []
+  (.mkdirs (java.io.File. (str (System/getProperty "user.home") "/.alexander")))
   (when (not (d/database-exists? (db-cfg)))
   (d/create-database (db-cfg)))
   (let [conn (d/connect (db-cfg))]
@@ -285,45 +286,45 @@
   (println "database cleared."))
 
 (defn cmd-help []
-  (println "pm — knowledge graph (datahike)")
+  (println "alexander — knowledge graph (datahike)")
   (println "")
   (println "  graph:")
-  (println "    pm mint <name> [kind]           create entity")
-  (println "    pm attr <e> <kind> <value>      attach descriptor")
-  (println "    pm claim <s> <p> <o> [layer]    relate entities")
-  (println "    pm about <entity>               show entity")
-  (println "    pm entities                     list all")
+  (println "    alex mint <name> [kind]           create entity")
+  (println "    alex attr <e> <kind> <value>      attach descriptor")
+  (println "    alex claim <s> <p> <o> [layer]    relate entities")
+  (println "    alex about <entity>               show entity")
+  (println "    alex entities                     list all")
   (println "")
   (println "  tasks:")
-  (println "    pm add <title>                  add task")
-  (println "    pm list                         list tasks")
-  (println "    pm done <id>                    mark done")
-  (println "    pm rm <id>                      remove task")
+  (println "    alex add <title>                  add task")
+  (println "    alex list                         list tasks")
+  (println "    alex done <id>                    mark done")
+  (println "    alex rm <id>                      remove task")
   (println "")
   (println "  sources:")
-  (println "    pm ingest                       read stdin")
-  (println "    pm sources                      list sources")
-  (println "    pm source <name>                show source")
+  (println "    alex ingest                       read stdin")
+  (println "    alex sources                      list sources")
+  (println "    alex source <name>                show source")
   (println "")
   (println "  admin:")
-  (println "    pm nuke                         wipe database"))
+  (println "    alex nuke                         wipe database"))
 
 (defn main []
   (let [args (vec *command-line-args*)
    cmd (first args)]
   (cond
-  (= cmd "mint") (if (nil? (get args 1)) (println "usage: pm mint <name> [kind]") (cmd-mint (get args 1) (get args 2)))
-  (= cmd "attr") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3))) (println "usage: pm attr <entity> <kind> <value>") (cmd-attr (get args 1) (get args 2) (get args 3)))
-  (= cmd "claim") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3))) (println "usage: pm claim <subject> <predicate> <object> [layer]") (cmd-claim-rel (get args 1) (get args 2) (get args 3) (if (nil? (get args 4)) "observation" (get args 4))))
-  (= cmd "about") (if (nil? (get args 1)) (println "usage: pm about <entity>") (cmd-about (get args 1)))
+  (= cmd "mint") (if (nil? (get args 1)) (println "usage: alexmint <name> [kind]") (cmd-mint (get args 1) (get args 2)))
+  (= cmd "attr") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3))) (println "usage: alexattr <entity> <kind> <value>") (cmd-attr (get args 1) (get args 2) (get args 3)))
+  (= cmd "claim") (if (or (nil? (get args 1)) (nil? (get args 2)) (nil? (get args 3))) (println "usage: alexclaim <subject> <predicate> <object> [layer]") (cmd-claim-rel (get args 1) (get args 2) (get args 3) (if (nil? (get args 4)) "observation" (get args 4))))
+  (= cmd "about") (if (nil? (get args 1)) (println "usage: alexabout <entity>") (cmd-about (get args 1)))
   (= cmd "entities") (cmd-entities)
-  (= cmd "add") (if (empty? (rest args)) (println "usage: pm add <title>") (cmd-add (str/join " " (rest args))))
+  (= cmd "add") (if (empty? (rest args)) (println "usage: alexadd <title>") (cmd-add (str/join " " (rest args))))
   (= cmd "list") (cmd-list)
-  (= cmd "done") (if (nil? (get args 1)) (println "usage: pm done <id>") (cmd-done (get args 1)))
-  (= cmd "rm") (if (nil? (get args 1)) (println "usage: pm rm <id>") (cmd-rm (get args 1)))
+  (= cmd "done") (if (nil? (get args 1)) (println "usage: alexdone <id>") (cmd-done (get args 1)))
+  (= cmd "rm") (if (nil? (get args 1)) (println "usage: alexrm <id>") (cmd-rm (get args 1)))
   (= cmd "ingest") (cmd-ingest)
   (= cmd "sources") (cmd-sources)
-  (= cmd "source") (if (nil? (get args 1)) (println "usage: pm source <name>") (cmd-source (get args 1)))
+  (= cmd "source") (if (nil? (get args 1)) (println "usage: alexsource <name>") (cmd-source (get args 1)))
   (= cmd "nuke") (cmd-nuke)
   :else (cmd-help))))
 
