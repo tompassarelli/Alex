@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec bb "$SCRIPT_DIR/../alex.clj" "$@"
+REPO_DIR="$SCRIPT_DIR/.."
+DGM_DIR="${DGM_PATH:-$REPO_DIR/../dgm-datahike}"
+exec bb -cp "$REPO_DIR/src:$DGM_DIR/src" -m alexander.cli "$@"
