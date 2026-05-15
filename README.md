@@ -1,11 +1,12 @@
-# alex — knowledge graph CLI
+# alexander — knowledge graph CLI
 
 A personal knowledge graph backed by Datahike. Models everything as
 entities and claims (subject-predicate-object triples). Task management
 is sugar on top of the graph.
 
-Authored in [beagle](https://github.com/tompassarelli/beagle) (`alex.rkt`),
-compiled to Clojure (`alex.clj`), runs on [babashka](https://babashka.org/).
+Implements [Descriptor Graph Normal Form](https://github.com/tompassarelli/descriptor-graph-normal-form)
+via [dgm-datahike](https://github.com/tompassarelli/dgm-datahike).
+Runs on [babashka](https://babashka.org/).
 
 ## The ontological model
 
@@ -137,16 +138,7 @@ alex nuke                         wipe the database
 
 - **Runtime:** [babashka](https://babashka.org/) (`bb`) with the
   `replikativ/datahike` pod (auto-fetched on first run)
-- **Build-time:** [beagle](https://github.com/tompassarelli/beagle)
-  (`bin/beagle-build alex.rkt alex.clj`) — only needed to recompile from source
+- **Library:** [dgm-datahike](https://github.com/tompassarelli/dgm-datahike)
+  — cloned as a sibling directory, or set `$DGM_PATH`
 
 Data lives at `~/.alexander/datahike/`.
-
-## Building
-
-```
-bin/beagle-build alex.rkt alex.clj
-```
-
-Requires beagle installed as a Racket package. The compiled `alex.clj` is
-checked in so you can run without beagle installed.

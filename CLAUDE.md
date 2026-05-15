@@ -1,6 +1,8 @@
 # alexander — session anchor
 
 A personal knowledge graph CLI backed by Datahike. CLI command is `alex`.
+Implements [Descriptor Graph Normal Form](https://github.com/tompassarelli/descriptor-graph-normal-form)
+via the [dgm-datahike](https://github.com/tompassarelli/dgm-datahike) library.
 
 ## Ontological model
 
@@ -21,26 +23,11 @@ Every claim carries a `:layer` (observation, interpretation, orientation).
 Custom predicates beyond `:is` are free-form keywords for domain relations
 (works-on, reports-to, etc).
 
-## Schema
-
-Eight flat attributes — no namespace prefixes:
-
-- `:name` (string, unique identity) — entity identifier, lookup ref target
-- `:value` (string) — literal value on descriptor entities
-- `:text` (string) — raw text on source entities
-- `:subject` (ref) — claim subject
-- `:predicate` (keyword) — claim predicate
-- `:object` (ref) — claim object
-- `:layer` (keyword) — epistemic layer
-- `:created-at` (string) — timestamp on sources
-
-Bootstrap concepts: name, person, place, project, theme, task, title,
-status, description.
-
 ## Architecture
 
-Authored in beagle (`alex.rkt` → `alex.clj`). Runs on babashka with the
-datahike pod. Data at `~/.alexander/datahike/`.
+Plain Clojure (`src/alexander/cli.clj`) on babashka. Core DGNF operations
+come from `dgm-datahike` (sibling dir or `$DGM_PATH`). Data at
+`~/.alexander/datahike/`.
 
 Auto-generated entity names: `d1, d2, ...` (descriptors), `t1, t2, ...`
 (tasks), `s1, s2, ...` (sources). Seq counters stored as `_seq.d`,
@@ -67,22 +54,16 @@ alex source <name>                show source
 alex nuke                         wipe database
 ```
 
-## Building
-
-```
-beagle-build alex.rkt alex.clj
-```
-
-Only needed when editing `alex.rkt`. The compiled `alex.clj` is committed.
-
 ## Key implementation details
 
-- `attach-attr` is idempotent: updates existing descriptor value or creates
-  new descriptor + claims
-- `cmd-rm` only retracts descriptor entities (those with `:value`), not
-  shared concept entities — the `:value` guard in the retraction query
-  prevents deleting bootstrap concepts
+- `attach-descriptor` is idempotent: updates existing descriptor value or
+  creates new descriptor + claims
+- `retract-entity` only retracts descriptor entities (those with `:value`),
+  not shared concept entities — the `:value` guard prevents deleting
+  bootstrap concepts
 - `find-descriptor` joins through two `:is` hops: entity → descriptor
   (has `:value`) → concept
 - Task sugar is built on top of the graph: tasks are entities classified
   as "task" with title and status descriptors
+- Domain-specific queries (e.g. `query-tasks`) use `dgm/q` and `dgm/db`
+  passthroughs for raw Datalog
