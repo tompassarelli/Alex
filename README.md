@@ -1,4 +1,4 @@
-# alexander — knowledge graph CLI
+# Alex — knowledge graph CLI
 
 A personal knowledge graph backed by Datahike. Models everything as
 entities and claims (subject-predicate-object triples). Task management
